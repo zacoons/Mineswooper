@@ -6,15 +6,24 @@
         public int Col { get; }
 
         public bool HasBomb;
-        public bool IsRevealed;
+
+        bool _isRevealed;
+        public bool IsRevealed
+        {
+            get => _isRevealed;
+            set
+            {
+                _isRevealed = value;
+                if (_isRevealed)
+                    IsFlagged = false;
+            }
+        }
+        public bool IsFlagged;
 
         public Cell(int row, int col)
         {
             Row = row;
             Col = col;
-
-            HasBomb = false;
-            IsRevealed = false;
         }
 
         public override bool Equals(object obj)

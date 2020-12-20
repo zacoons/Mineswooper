@@ -2,12 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
+using System.Windows.Input;
 
 namespace Mineswooper
 {
     public class GameManager
     {
+        public const int DEFAULT_GAMESIZE = 8;
+
         int gameSize;
+        int flags;
 
         public Cell[] cells;
 
@@ -20,6 +24,7 @@ namespace Mineswooper
             for (int i = 0; i < cellCount; i++)
                 cells[i] = new Cell(i / gameSize, i % gameSize);
 
+            int bombCount = 0;
             if (createBombs)
             {
                 var rnd = new Random();
@@ -31,17 +36,41 @@ namespace Mineswooper
                         if (cells[index].HasBomb == false)
                         {
                             cells[index].HasBomb = true;
+                            bombCount++;
                             break;
                         }
                     }
                     while (true);
                 }
             }
+            flags = bombCount;
         }
 
         public Cell GetCellAt(int row, int col)
         {
             return cells[row * gameSize + col];
+        }
+
+        public bool HasWon()
+        {
+            for (int i = 0; i < cells.Length; i++)
+            {
+                if (!cells[i].HasBomb && !cells[i].IsRevealed)
+                    return false;
+            }
+            
+            return true;
+        }
+
+        public bool HasLost()
+        {
+            for (int i = 0; i < cells.Length; i++)
+            {
+                if (cells[i].HasBomb && cells[i].IsRevealed)
+                    return true;
+            }
+
+            return false;
         }
 
         public Cell[] GetAdjacentCells(Cell cell)
@@ -157,10 +186,11 @@ namespace Mineswooper
             {
                 var c = cellsToCheck.Dequeue();
                 cellsAlreadyChecked.Add(c);
-                if (hasNearbyBomb(c) == false)
+                if (c.HasBomb == false)
                 {
                     cellsToReveal.Add(c);
-                    addCellsToCheck(GetAdjacentCells(c));
+                    if (hasNearbyBomb(c) == false)
+                        addCellsToCheck(GetAdjacentCells(c));
                 }
             }
 
@@ -176,14 +206,45 @@ namespace Mineswooper
                 GetAdjacentCells(_c).Where(c => c.HasBomb).Count() > 0;
         }
 
-        public RoutedEventHandler AddHandler(int row, int col)
+        public RoutedEventHandler AddRevealHandler(int row, int col)
         {
             return (o, e) =>
             {
                 var cellsToReveal = GetCellsToReveal(GetCellAt(row, col));
 
-                foreach(var c in cellsToReveal)
+                foreach (var c in cellsToReveal)
+                {
                     c.IsRevealed = true;
+                    if (c.IsFlagged)
+                    {
+                        c.IsFlagged = false;
+                        flags++;
+                    }
+                }
+            };
+        }
+        //fix the flags not unflagging
+        public MouseButtonEventHandler AddFlagHandler(int row, int col)
+        {
+            return (o, e) =>
+            {
+                var c = GetCellAt(row, col);
+                if (c.IsRevealed == false)
+                {
+                    if (flags > 0)
+                    {
+                        c.IsFlagged = !c.IsFlagged;
+                        if (c.IsFlagged)
+                            flags--;
+                        else
+                            flags++;
+                    }
+                    else
+                    {
+                        c.IsFlagged = false;
+                        flags++;
+                    }
+                }
             };
         }
     }

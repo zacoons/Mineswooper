@@ -6,7 +6,9 @@
         xmlns:local="clr-namespace:Mineswooper"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="450">
-    <Grid x:Name="grid">
-
-    </Grid>
+    <Canvas x:Name="canvas">
+        <Grid x:Name="grid" />
+        <Grid x:Name="overlay" Visibility="Hidden" />
+        <local:GameMenu x:Name="gameMenu" Visibility="Visible" />
+    </Canvas>
 </Window>
