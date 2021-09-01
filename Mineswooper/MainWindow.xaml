@@ -5,7 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Mineswooper"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="450">
+        Title="MainWindow" Width="450"
+        Name="Minesweeper" Icon="Icon.ico" >
+
     <Canvas x:Name="canvas">
         <Grid x:Name="grid" />
         <Grid x:Name="overlay" Visibility="Hidden" />

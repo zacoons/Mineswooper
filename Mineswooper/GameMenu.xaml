@@ -21,7 +21,7 @@
         <StackPanel Grid.Column="1" Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Stretch">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
                 <TextBlock Text="GAME SIZE" Padding="0 0 10 0" VerticalAlignment="Center" FontWeight="Bold" Foreground="White" FontSize="15" />
-                <ComboBox Name="gameSizes" HorizontalAlignment="Stretch" Foreground="White" FontWeight="Bold">
+                <ComboBox Name="gameSizes" HorizontalAlignment="Stretch" Foreground="White" FontWeight="Bold" BorderThickness="0">
                     <ComboBox.Resources>
                         <!-- color of ComboBoxItem -->
                         <SolidColorBrush x:Key="{x:Static SystemColors.WindowBrushKey}" Color="#47475C" />

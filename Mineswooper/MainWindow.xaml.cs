@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Media.Effects;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace Mineswooper
 {
@@ -25,10 +27,27 @@ namespace Mineswooper
             VerticalAlignment = VerticalAlignment.Center,
         };
         readonly SolidColorBrush endGameBrush = new SolidColorBrush(Colors.Red);
+        readonly DispatcherTimer timer = new DispatcherTimer();
 
         public MainWindow()
         {
             InitializeComponent();
+
+            SetBinding(
+                MinHeightProperty,
+                new Binding(ActualWidthProperty.Name)
+                {
+                    Source = this,
+                    Mode = BindingMode.OneWay,
+                });
+            SetBinding(
+                MaxHeightProperty,
+                new Binding(ActualWidthProperty.Name)
+                {
+                    Source = this,
+                    Mode = BindingMode.OneWay,
+                });
+
             grid.SetBinding(
                 WidthProperty,
                 new Binding(ActualWidthProperty.Name)
@@ -53,6 +72,7 @@ namespace Mineswooper
             };
             overlay.Background = endGameBrush;
             endGameBrush.Opacity = 0.4;
+            overlay.MouseDown += (o, e) => BackToMenu();
             overlay.SetBinding(
                 WidthProperty,
                 new Binding(ActualWidthProperty.Name)
@@ -89,6 +109,14 @@ namespace Mineswooper
             overlay.Children.Add(endGameText);
             Grid.SetRow(endGameText, 1);
 
+            timer.Interval = new TimeSpan(0, 0, 10);
+            timer.Tick += (o, e) => BackToMenu();
+            overlay.IsVisibleChanged += (o, e) =>
+            {
+                if (overlay.Visibility == Visibility.Visible)
+                    timer.Start();
+            };
+
             grid.Background = new SolidColorBrush(Color.FromRgb(53, 53, 69));
         }
 
@@ -98,6 +126,8 @@ namespace Mineswooper
             var cellButtons = new Dictionary<Cell, Button>();
             gm.Start(gameSize);
 
+            grid.ColumnDefinitions.Clear();
+            grid.RowDefinitions.Clear();
             for (int col = 0; col < gameSize; col++)
                 grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
             for (int row = 0; row < gameSize; row++)
@@ -165,6 +195,13 @@ namespace Mineswooper
                     }
                 }
             }
+        }
+
+        void BackToMenu()
+        {
+            timer.Stop();
+            gameMenu.Visibility = Visibility.Visible;
+            overlay.Visibility = Visibility.Hidden;
         }
     }
 }
